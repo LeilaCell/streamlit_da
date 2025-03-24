@@ -30,7 +30,7 @@ This project provides a simple Streamlit application with multiple sections, mai
 
    ```bash
    git clone https://github.com/yourusername/streamlit_da.git
-   cd streamlit-template
+   cd streamlit_da
 
 - Use pip to install all pacakges in the requirements.txt
 
