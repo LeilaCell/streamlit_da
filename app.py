@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Set the title of the app
-st.title("Streamlit Template for Data Visualizations")
+st.title("What ever title you want")
 
 # Create multiple divisions (blocks) using containers
 # Block 1: Introduction
