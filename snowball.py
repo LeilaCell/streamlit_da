@@ -54,6 +54,14 @@ st.markdown(
         input[type="range"]::-moz-range-track {
             background: #FFF9D1;
         }
+
+        /* Ensure Streamlit-generated heading tags use the font */
+        h1, h2, h3, h4, h5, h6,
+        div[data-testid="stHeader"] h1,
+        div[data-testid="stHeader"] h2,
+        div[data-testid="stHeader"] h3 {
+            font-family: 'Gloria Hallelujah', cursive !important;
+        }
     </style>
     """,
     unsafe_allow_html=True,
