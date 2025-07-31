@@ -1,1 +1,5 @@
 .python-version
+# Ignore local Python virtual environments
+.venv/
+venv/
+env/
