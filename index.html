@@ -1,27 +1,126 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <script src="https://cdn.jsdelivr.net/npm/stlite@0.43.0/dist/stlite.js"></script>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module">
-    import { stlite } from "https://cdn.jsdelivr.net/npm/stlite@0.43.0/dist/stlite.js";
+from sklearn.datasets import load_iris
+import pandas as pd
+import streamlit as st
 
-    (async () => {
-      const files = {
-        // main app script
-        "snowball.py": await (await fetch("snowball.py")).text(),
-        // minimal deps for Pyodide (pandas & matplotlib are already built‑in)
-        "requirements.txt": "streamlit\nmatplotlib\npandas"
-      };
+# --- scikit‑learn is unavailable inside stlite (browser version), so fall back gracefully
+try:
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.linear_model import LogisticRegression
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
 
-      stlite.render({
-        entrypoint: "snowball.py",
-        files
-      });
-    })();
-  </script>
-</body>
-</html>
+# ===============================
+# 1. Chargement des données
+# ===============================
+
+@st.cache_data
+def load_data():
+    iris = load_iris()
+    df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    df["target"] = iris.target
+    df["target_name"] = df["target"].map(lambda i: iris.target_names[i])
+    return df, iris
+
+df, iris = load_data()
+
+st.title("🌸 Analyse des iris")
+
+st.write("Voici un aperçu des données d'iris:")
+st.dataframe(df.head())
+
+# ===============================
+# 2. Visualisation simple
+# ===============================
+
+st.header("2️⃣ Visualisation simple")
+
+x_axis = st.selectbox("Sélectionnez la variable pour l'axe X", iris.feature_names, index=0)
+y_axis = st.selectbox("Sélectionnez la variable pour l'axe Y", iris.feature_names, index=1)
+
+st.write(f"Scatter plot de {x_axis} vs {y_axis}")
+
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+for species in iris.target_names:
+    subset = df[df["target_name"] == species]
+    ax.scatter(subset[x_axis], subset[y_axis], label=species)
+ax.set_xlabel(x_axis)
+ax.set_ylabel(y_axis)
+ax.legend()
+st.pyplot(fig)
+
+# ===============================
+# 4. Prototype modèle prédictif
+# ===============================
+
+if not SKLEARN_AVAILABLE:
+    st.header("3️⃣ Predictive model prototype")
+    st.info("⚠️ This section is disabled in the browser version because scikit‑learn "
+            "is not supported in WebAssembly. Run the app on a Python server to enable it.")
+else:
+    # Candidate feature names (all except target columns)
+    feature_names = iris.feature_names
+
+    # Feature matrix and target vector
+    X = df[feature_names].values
+    y = df["target"].values
+
+    # Standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Fit logistic regression model
+    clf = LogisticRegression(max_iter=200)
+    clf.fit(X_scaled, y)
+
+    st.header("3️⃣ Prototype modèle prédictif")
+
+    st.write("Ce modèle utilise une régression logistique pour prédire l'espèce d'iris.")
+
+    # Input sliders for features
+    st.subheader("Entrez les caractéristiques de l'iris:")
+    input_data = []
+    for feature in feature_names:
+        min_val = float(df[feature].min())
+        max_val = float(df[feature].max())
+        mean_val = float(df[feature].mean())
+        val = st.slider(feature, min_val, max_val, mean_val)
+        input_data.append(val)
+
+    # Predict button
+    if st.button("Prédire l'espèce"):
+        input_scaled = scaler.transform([input_data])
+        pred = clf.predict(input_scaled)[0]
+        pred_proba = clf.predict_proba(input_scaled)[0]
+
+        st.write(f"Prédiction: **{iris.target_names[pred]}**")
+        st.write("Probabilités:")
+        for i, species in enumerate(iris.target_names):
+            st.write(f"- {species}: {pred_proba[i]:.2f}")
+
+    # ===============================
+    # 5. Simuler un utilisateur
+    # ===============================
+
+    st.header("4️⃣ Simuler un utilisateur")
+
+    st.write("Simulez un utilisateur en choisissant un échantillon d'iris:")
+
+    selected_index = st.selectbox("Sélectionnez un index d'échantillon", df.index)
+
+    sample = df.loc[selected_index, feature_names].values.reshape(1, -1)
+    sample_scaled = scaler.transform(sample)
+    sample_pred = clf.predict(sample_scaled)[0]
+    sample_pred_proba = clf.predict_proba(sample_scaled)[0]
+
+    st.write(f"Caractéristiques sélectionnées:")
+    st.write(df.loc[selected_index, feature_names])
+
+    st.write(f"Prédiction du modèle: **{iris.target_names[sample_pred]}**")
+    st.write("Probabilités:")
+    for i, species in enumerate(iris.target_names):
+        st.write(f"- {species}: {sample_pred_proba[i]:.2f}")
+
+    st.caption("Fin de la simulation utilisateur.")
