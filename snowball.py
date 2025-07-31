@@ -72,7 +72,7 @@ st.header("3️⃣ Predictive model prototype")
 
 
 # Candidate feature names (adjust to match your dataset)
-candidate_features = ["open_rate", "click_rate", "time_since_signup"]
+candidate_features = ["open_rate_free_editions_30d", "days_since_signup"]
 
 # Keep only those features that actually exist in the dataframe
 features = [col for col in candidate_features if col in df.columns]
@@ -118,13 +118,18 @@ st.caption("⚠️ Warning: These scores are low and should be interpreted with 
 st.subheader("🔮 Simulate a user")
 
 # Build input sliders dynamically based on the selected feature names
+if "open_rate_free_editions_30d" in features:
+    sliders["open_rate_free_editions_30d"] = st.slider(
+        "Open rate (free editions, last 30 days) (%)", 0, 100, 30
+    ) / 100
+
 sliders = {}
 if "open_rate" in features:
     sliders["open_rate"] = st.slider("Open rate (%)", 0, 100, 30) / 100
 if "click_rate" in features:
     sliders["click_rate"] = st.slider("Click rate (%)", 0, 100, 5) / 100
-if "time_since_signup" in features:
-    sliders["time_since_signup"] = st.slider("Days since signup", 0, 365, 60)
+if "days_since_signup" in features:
+    sliders["days_since_signup"] = st.slider("Days since signup", 0, 365, 60)
 
 # Ensure slider order matches the `features` list
 input_df = pd.DataFrame([[sliders[col] for col in features]], columns=features)
