@@ -24,21 +24,35 @@ st.title("⛇ Snowball – Exploratory dashboard")
 st.markdown(
     """
     <style>
+        /* Import a handwritten‑style Google font */
+        @import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap');
+
         .stApp {
             background-color: #FF8ACD;
         }
-        /* Pastel‑yellow sliders */
+
+        /* Handwritten / playful headings */
+        h1, h2, h3 {
+            font-family: 'Gloria Hallelujah', cursive;
+            font-weight: 700;
+        }
+
+        /* Pastel‑yellow sliders (thumb + track + accent) */
+        input[type="range"] {
+            accent-color: #FFD86F;           /* works on Chromium & Safari */
+        }
+
         input[type="range"]::-webkit-slider-thumb {
-            background: #FFF8CC;
+            background: #FFD86F;             /* darker pastel yellow */
         }
         input[type="range"]::-webkit-slider-runnable-track {
-            background: #FFFBDF;
+            background: #FFF9D1;             /* light pastel track */
         }
         input[type="range"]::-moz-range-thumb {
-            background: #FFF8CC;
+            background: #FFD86F;
         }
         input[type="range"]::-moz-range-track {
-            background: #FFFBDF;
+            background: #FFF9D1;
         }
     </style>
     """,
