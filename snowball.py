@@ -102,7 +102,25 @@ with col2:
 # ===============================
 st.header("❆❆ Data exploration")
 
-numeric_cols = df.select_dtypes(include=['float64','int64']).columns.tolist()
+ # Keep only numeric columns that vary in *both* groups (needed for KDE)
+def _valid_for_kde(col: str) -> bool:
+    if df[col].nunique(dropna=True) <= 1:
+        return False  # constant overall
+    # Must have ≥2 distinct values in each subscription group
+    for g in (True, False):
+        if df[df["is_paid_subscriber"] == g][col].nunique(dropna=True) <= 1:
+            return False
+    return True
+
+numeric_cols = [
+    c
+    for c in df.select_dtypes(include=["float64", "int64"]).columns
+    if _valid_for_kde(c)
+]
+
+if not numeric_cols:
+    st.error("No numeric columns have enough variability to plot a distribution.")
+    st.stop()
 feature = st.selectbox("Choose a variable to explore :", numeric_cols)
 
 # Create KDE plots for paid vs free with explicit labels
