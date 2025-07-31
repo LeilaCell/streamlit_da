@@ -70,9 +70,23 @@ st.pyplot(fig)
 # ===============================
 st.header("3️⃣ Predictive model prototype")
 
-# Features de base (à ajuster selon ton dataset)
-features = ["open_rate", "click_rate", "time_since_signup"]
-df_model = df.dropna(subset=features)  # on retire les NA pour l'exemple
+
+# Candidate feature names (adjust to match your dataset)
+candidate_features = ["open_rate", "click_rate", "time_since_signup"]
+
+# Keep only those features that actually exist in the dataframe
+features = [col for col in candidate_features if col in df.columns]
+
+if len(features) < 2:  # Need at least two numeric inputs for a meaningful model
+    st.error(
+        "❌ Required feature columns not found in the dataset.\n\n"
+        f"**Missing candidates:** {', '.join(set(candidate_features) - set(features))}\n"
+        f"**Available numeric columns:** {', '.join(df.select_dtypes(include=['float64','int64']).columns)}"
+    )
+    st.stop()
+
+# Remove rows with NA in the chosen features
+df_model = df.dropna(subset=features)
 
 X = df_model[features]
 y = df_model["is_paid_subscriber"]
@@ -103,12 +117,17 @@ st.caption("⚠️ Warning: These scores are low and should be interpreted with 
 # ===============================
 st.subheader("🔮 Simulate a user")
 
-open_rate = st.slider("Open rate (%)", 0, 100, 30) / 100
-click_rate = st.slider("Click rate (%)", 0, 100, 5) / 100
-time_since_signup = st.slider("Days since signup", 0, 365, 60)
+# Build input sliders dynamically based on the selected feature names
+sliders = {}
+if "open_rate" in features:
+    sliders["open_rate"] = st.slider("Open rate (%)", 0, 100, 30) / 100
+if "click_rate" in features:
+    sliders["click_rate"] = st.slider("Click rate (%)", 0, 100, 5) / 100
+if "time_since_signup" in features:
+    sliders["time_since_signup"] = st.slider("Days since signup", 0, 365, 60)
 
-# Créer un DataFrame pour prédire
-input_df = pd.DataFrame([[open_rate, click_rate, time_since_signup]], columns=features)
+# Ensure slider order matches the `features` list
+input_df = pd.DataFrame([[sliders[col] for col in features]], columns=features)
 input_scaled = scaler.transform(input_df)
 
 proba = model.predict_proba(input_scaled)[0][1]
