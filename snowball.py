@@ -51,9 +51,18 @@ st.header("2️⃣ Data exploration")
 numeric_cols = df.select_dtypes(include=['float64','int64']).columns.tolist()
 feature = st.selectbox("Choose a variable to explore :", numeric_cols)
 
+# Create KDE plots for paid vs free with explicit labels
 fig, ax = plt.subplots()
-df.groupby("is_paid_subscriber")[feature].plot(kind="kde", legend=True, ax=ax)
+labels_map = {False: "Free", True: "Paid"}
+for status, subset in df.groupby("is_paid_subscriber"):
+    subset[feature].plot(kind="kde", ax=ax, label=labels_map.get(status, status))
 ax.set_title(f"Distribution of {feature} by status")
+ax.legend(title="Subscription status")
+
+# If the variable can't be negative (e.g. rates or days), keep the x‑axis ≥ 0
+if df[feature].min() >= 0:
+    ax.set_xlim(left=0)
+
 st.pyplot(fig)
 
 # ===============================
