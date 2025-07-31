@@ -18,7 +18,7 @@ def load_data():
 df = load_data()
 
 
-st.title("📊 Snowball – Exploratory dashboard")
+st.title("⛇ Snowball – Exploratory dashboard")
 
 # ---- Page background color ----
 st.markdown(
@@ -26,6 +26,19 @@ st.markdown(
     <style>
         .stApp {
             background-color: #FF8ACD;
+        }
+        /* Pastel‑yellow sliders */
+        input[type="range"]::-webkit-slider-thumb {
+            background: #FFF8CC;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #FFFBDF;
+        }
+        input[type="range"]::-moz-range-thumb {
+            background: #FFF8CC;
+        }
+        input[type="range"]::-moz-range-track {
+            background: #FFFBDF;
         }
     </style>
     """,
@@ -40,7 +53,7 @@ The models shown here are **experimental and unreliable** – they are for explo
 # ===============================
 # 2. Vue d’ensemble
 # ===============================
-st.header("1️⃣ User overview")
+st.header("❆ User overview")
 
 col1, col2 = st.columns(2)
 with col1:
@@ -51,7 +64,13 @@ with col1:
 
 with col2:
     fig, ax = plt.subplots()
-    df["is_paid_subscriber"].value_counts().plot(kind="pie", labels=["Free", "Paid"], autopct="%1.1f%%", ax=ax)
+    df["is_paid_subscriber"].value_counts().plot(
+        kind="pie",
+        labels=["Free", "Paid"],
+        autopct="%1.1f%%",
+        colors=["#A8D0E6", "#C4A7E7"],  # pastel blue, pastel purple
+        ax=ax
+    )
     ax.set_ylabel("")
     ax.set_title("Paid / Free split")
     st.pyplot(fig)
@@ -59,7 +78,7 @@ with col2:
 # ===============================
 # 3. Exploration interactive
 # ===============================
-st.header("2️⃣ Data exploration")
+st.header("❆❆ Data exploration")
 
 numeric_cols = df.select_dtypes(include=['float64','int64']).columns.tolist()
 feature = st.selectbox("Choose a variable to explore :", numeric_cols)
@@ -67,8 +86,14 @@ feature = st.selectbox("Choose a variable to explore :", numeric_cols)
 # Create KDE plots for paid vs free with explicit labels
 fig, ax = plt.subplots()
 labels_map = {False: "Free", True: "Paid"}
+colors_map = {False: "#A8D0E6", True: "#C4A7E7"}  # pastel blue / purple
 for status, subset in df.groupby("is_paid_subscriber"):
-    subset[feature].plot(kind="kde", ax=ax, label=labels_map.get(status, status))
+    subset[feature].plot(
+        kind="kde",
+        ax=ax,
+        label=labels_map.get(status, status),
+        color=colors_map.get(status)
+    )
 ax.set_title(f"Distribution of {feature} by status")
 ax.legend(title="Subscription status")
 
@@ -81,7 +106,7 @@ st.pyplot(fig)
 # ===============================
 # 4. Prototype modèle prédictif
 # ===============================
-st.header("3️⃣ Predictive model prototype")
+st.header("❆❆❆ Predictive model prototype")
 
 
 # Candidate feature names (adjust to match your dataset)
@@ -128,7 +153,7 @@ st.caption("⚠️ Warning: These scores are low and should be interpreted with 
 # ===============================
 # 5. Simulation “What if”
 # ===============================
-st.subheader("🔮 Simulate a user")
+st.subheader("☃ Simulate a user")
 
 # Build input sliders dynamically based on the selected feature names
 sliders = {}
