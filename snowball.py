@@ -17,7 +17,20 @@ def load_data():
 
 df = load_data()
 
+
 st.title("📊 Snowball – Exploratory dashboard")
+
+# ---- Page background color ----
+st.markdown(
+    """
+    <style>
+        .stApp {
+            background-color: #FF8ACD;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.markdown("""
 **⚠️ Disclaimer :** The data are heavily imbalanced (only ~55 paying subscribers).  
@@ -118,12 +131,12 @@ st.caption("⚠️ Warning: These scores are low and should be interpreted with 
 st.subheader("🔮 Simulate a user")
 
 # Build input sliders dynamically based on the selected feature names
+sliders = {}
 if "open_rate_free_editions_30d" in features:
     sliders["open_rate_free_editions_30d"] = st.slider(
         "Open rate (free editions, last 30 days) (%)", 0, 100, 30
     ) / 100
 
-sliders = {}
 if "open_rate" in features:
     sliders["open_rate"] = st.slider("Open rate (%)", 0, 100, 30) / 100
 if "click_rate" in features:
