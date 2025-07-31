@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 @st.cache_data
 def load_data():
     # Remplace par ton chemin CSV ou BigQuery export
-    df = pd.read_csv("/Users/leila/code/leilacell/streamlit_da/bquxjob_6467eac5_1985b508c46.csv")
+    df = pd.read_csv("bquxjob_6467eac5_1985b508c46.csv")
     return df
 
 df = load_data()
